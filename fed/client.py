@@ -1,39 +1,25 @@
-# fed/client.py
-
-from task import Net, get_weights, set_weights, train, test, load_data
 import flwr as fl
-from flwr.client import NumPyClient
 import torch
+from task import Net, get_weights, set_weights, train, test, get_dataloaders
+import yaml
 
-print("[DEBUG] Top of client.py reached")
+with open("config.yaml", "r") as f:
+    CONFIG = yaml.safe_load(f)
 
-class FlowerClient(NumPyClient):
+class FlowerClient(fl.client.NumPyClient):
     def __init__(self):
-        print("[DEBUG] Initializing FlowerClient")
-        self.trainloader, self.valloader, self.testloader = load_data("downloaded_faces")
-        
-        # FIX: Safely get number of classes
-        try:
-            num_classes = len(self.trainloader.dataset.dataset.classes)
-        except Exception as e:
-            print(f"[ERROR] Could not determine number of classes: {e}")
-            num_classes = 14  # fallback default, change if needed
+        self.model = Net(num_classes=CONFIG["training"]["num_classes"])
+        self.trainloader, self.valloader = get_dataloaders()
 
-        self.net = Net(num_classes=num_classes)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    def get_parameters(self, config):
-        return get_weights(self.net)
-
+    def get_parameters(self, config): return get_weights(self.model)
     def fit(self, parameters, config):
-        set_weights(self.net, parameters)
-        train(self.net, self.trainloader, epochs=1, device=self.device)
-        return get_weights(self.net), len(self.trainloader.dataset), {}
-
+        set_weights(self.model, parameters)
+        self.model = train(self.model, self.trainloader, epochs=CONFIG["training"]["epochs"])
+        return get_weights(self.model), len(self.trainloader.dataset), {}
     def evaluate(self, parameters, config):
-        set_weights(self.net, parameters)
-        loss, accuracy = test(self.net, self.testloader, device=self.device)
-        return float(loss), len(self.testloader.dataset), {"accuracy": float(accuracy)}
+        set_weights(self.model, parameters)
+        loss, acc = test(self.model, self.valloader)
+        return float(loss), len(self.valloader.dataset), {"accuracy": float(acc)}
 
 if __name__ == "__main__":
-    fl.client.start_client(server_address="127.0.0.1:8080", client=FlowerClient().to_client())
+    fl.client.start_client(server_address=CONFIG["server"]["address"], client=FlowerClient().to_client())
