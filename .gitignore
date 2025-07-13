@@ -1,0 +1,8 @@
+downloaded_faces
+.qodo
+__pycache__
+
+downloaded_faces/
+*.csv
+*.json
+*.zip
