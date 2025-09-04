@@ -1,17 +1,32 @@
-# config.yaml
+
+# data:
+#   train_file: "downloaded_faces/training_raw_data.json"
+#   val_file: "downloaded_faces/validation_raw_data.json"
+#   test_file: "downloaded_faces/testing_raw_data.json"
+#   label_column: "label"
+#   url_column: "url"
+
+# training:
+#   batch_size: 32
+#   num_workers: 4
+#   num_classes: 134  
+#   epochs: 3
+#   image_size: 224
+
+# server:
+#   address: "127.0.0.1:8080"
+#   num_rounds: 3
+
+
 data:
-  train_file: "training_raw_data.json"
-  val_file: "validation_raw_data.json"
-  test_file: "testing_raw_data.json"
-  label_column: "label"
-  url_column: "url"
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
 
 training:
   batch_size: 32
-  num_workers: 4
-  num_classes: 10  # update this dynamically if needed
   epochs: 3
-  image_size: 224
+  lr: 0.001
 
 server:
   address: "127.0.0.1:8080"

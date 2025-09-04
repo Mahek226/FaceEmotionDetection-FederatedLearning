@@ -1,8 +1,25 @@
-downloaded_faces
-.qodo
-__pycache__
-
+# Ignore cache and editor files
+__pycache__/
+.qodo/
 downloaded_faces/
+data/downloaded_faces/
+
+# Ignore datasets and archives
 *.csv
 *.json
 *.zip
+
+# Ignore configs and non-Python files
+*.yaml
+*.yml
+*.png
+*.pth
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+
+*.pt
+
+config.yaml
